@@ -1,13 +1,15 @@
 library(shiny)
 library(DT)
+library(tidyverse)
 
 # ---- Default dataset --------------------------------------------------------
-default_data <- data.frame(
-  id    = 1:5,
-  name  = c("Alpha", "Bravo", "Charlie", "Delta", "Echo"),
-  value = c(10, 20, 30, 40, 50),
-  stringsAsFactors = FALSE
+presents = tibble(
+  Person = c("Amy", "Jess", "Carly", "Joe", "Christian", "Ryan", "Ted", "James", "Bree", "Hannah"),
+  Partner = c("Ryan", "Ted", "James", "Bree", "Hannah", "Amy", "Jess", "Carly", "Joe", "Christian"),
+  Recipient1 = sample(c("Amy", "Jess", "Carly", "Joe", "Christian", "Ryan", "Ted", "James", "Bree", "Hannah")),
+  Recipient2 = sample(c("Amy", "Jess", "Carly", "Joe", "Christian", "Ryan", "Ted", "James", "Bree", "Hannah"))
 )
+
 
 # ---- UI ---------------------------------------------------------------------
 ui <- fluidPage(
@@ -16,7 +18,7 @@ ui <- fluidPage(
   sidebarLayout(
     sidebarPanel(
       width = 5,
-      numericInput("n", "Integer input", value = 1, step = 1),
+      numericInput("n", "Enter an integer between 1000 and 1000000", value = 1, step = 1),
       actionButton("add_row", "Add row"),
       actionButton("reset", "Reset to default"),
       helpText("Double-click a cell in the input table to edit it."),
@@ -37,7 +39,7 @@ ui <- fluidPage(
 server <- function(input, output, session) {
 
   # Holds the current (possibly edited) dataset
-  data_rv <- reactiveVal(default_data)
+  data_rv <- reactiveVal(presents)
 
   # Editable input table
   output$input_table <- renderDT({
@@ -64,7 +66,7 @@ server <- function(input, output, session) {
 
   # Restore the default dataset
   observeEvent(input$reset, {
-    data_rv(default_data)
+    data_rv(presents)
   })
 
   # Validated integer input
@@ -84,8 +86,73 @@ server <- function(input, output, session) {
     # `df` is the current edited dataset (a data.frame).
     # Assign the final result back to `df`.
     #
-    # Example:
-    #   df$value <- df$value * n
+    set.seed(n)
+
+    presents = presents |>
+      rowwise() |>
+      mutate(
+        rec1_swap = Person == Recipient1 | Partner == Recipient1
+      ) |>
+      ungroup()
+
+    i = 0
+    while (any(presents$rec1_swap == TRUE)) {
+      i = i + 1
+      if (i >= 100) presents$Recipient1 = sample(c("Amy", "Jess", "Carly", "Joe", "Christian", "Ryan", "Ted", "James", "Bree", "Hannah"))
+      swap_rows = which(presents$rec1_swap == TRUE)
+      presents[swap_rows, "Recipient1"] = slice_sample(presents[swap_rows, "Recipient1"], n = length(swap_rows))
+      presents = presents |>
+        rowwise() |>
+        mutate(
+          rec1_swap = Person == Recipient1 | Partner == Recipient1
+        ) |>
+        ungroup()
+    }
+
+    presents = presents |>
+      select(!rec1_swap) |>
+      rowwise() |>
+      left_join(
+        y = presents |>
+          select(Person, Partner) |>
+          rename(rec2_partner = Partner),
+        by = join_by(Recipient1 == Person)
+      ) |>
+      mutate(
+        rec2_swap = Person == Recipient2 |
+          Partner == Recipient2 |
+          Recipient1 == Recipient2 |
+          rec2_partner == Recipient2
+      ) |>
+      ungroup() |>
+      select(!rec2_partner)
+
+    i = 0
+    while (any(presents$rec2_swap == TRUE)) {
+      i = i + 1
+      if (i >= 100) presents$Recipient2 = sample(c("Amy", "Jess", "Carly", "Joe", "Christian", "Ryan", "Ted", "James", "Bree", "Hannah"))
+      swap_rows = which(presents$rec2_swap == TRUE)
+      presents[swap_rows, "Recipient2"] = slice_sample(presents[swap_rows, "Recipient2"], n = length(swap_rows))
+      presents = presents |>
+        rowwise() |>
+        left_join(
+          y = presents |>
+            select(Person, Partner) |>
+            rename(rec2_partner = Partner),
+          by = join_by(Recipient1 == Person)
+        ) |>
+        mutate(
+          rec2_swap = Person == Recipient2 |
+            Partner == Recipient2 |
+            Recipient1 == Recipient2 |
+            rec2_partner == Recipient2
+        ) |>
+        ungroup() |>
+        select(!rec2_partner)
+    }
+
+    df = presents |>
+      select(!c(rec2_swap, Partner))
     # ------------------------------------------------------------------------
 
     df

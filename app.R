@@ -15,16 +15,18 @@ ui <- fluidPage(
 
   sidebarLayout(
     sidebarPanel(
+      width = 5,
       numericInput("n", "Integer input", value = 1, step = 1),
       actionButton("add_row", "Add row"),
       actionButton("reset", "Reset to default"),
-      helpText("Double-click a cell in the input table to edit it.")
+      helpText("Double-click a cell in the input table to edit it."),
+      hr(),
+      h4("Input data (editable)"),
+      DTOutput("input_table")
     ),
 
     mainPanel(
-      h4("Input data (editable)"),
-      DTOutput("input_table"),
-      hr(),
+      width = 7,
       h4("Output"),
       DTOutput("output_table")
     )

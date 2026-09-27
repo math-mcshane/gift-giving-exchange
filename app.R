@@ -56,13 +56,13 @@ server <- function(input, output, session) {
     data_rv(editData(data_rv(), input$input_table_cell_edit, rownames = FALSE))
   })
 
-  # Append a blank row
-  observeEvent(input$add_row, {
-    df <- data_rv()
-    new_row <- df[NA_integer_, , drop = FALSE][1, , drop = FALSE]
-    rownames(new_row) <- NULL
-    data_rv(rbind(df, new_row))
-  })
+  # # Append a blank row
+  # observeEvent(input$add_row, {
+  #   df <- data_rv()
+  #   new_row <- df[NA_integer_, , drop = FALSE][1, , drop = FALSE]
+  #   rownames(new_row) <- NULL
+  #   data_rv(rbind(df, new_row))
+  # })
 
   # Restore the default dataset
   observeEvent(input$reset, {

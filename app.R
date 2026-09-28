@@ -37,7 +37,20 @@ ui <- fluidPage(
     mainPanel(
       width = 7,
       h4("Output"),
-      DTOutput("output_table")
+      div(
+        class = "output-frame",
+        div(
+          class = "accent-row",
+          tags$img(src = "tree.svg", class = "accent", alt = ""),
+          tags$img(src = "holly.svg", class = "accent", alt = "")
+        ),
+        DTOutput("output_table"),
+        div(
+          class = "accent-row",
+          tags$img(src = "holly.svg", class = "accent", alt = ""),
+          tags$img(src = "tree.svg", class = "accent", alt = "")
+        )
+      )
     )
   )
 )

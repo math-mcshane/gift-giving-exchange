@@ -11,13 +11,13 @@ presents = tibble(
 
 # ---- UI ---------------------------------------------------------------------
 ui <- fluidPage(
-  titlePanel("Christmas gift-giving. Everyone gets two recipients -- neither their partner nor themselves."),
+  titlePanel("Christmas gift-giving. Everyone gets two distinct recipients -- neither their partner nor themselves."),
 
   sidebarLayout(
     sidebarPanel(
       width = 5,
-      numericInput("n", "Enter an integer between 1000 and 1000000 and press \"enter.\"", value = NA_integer_, step = 1),
-      actionButton("add_row", "Add row for additional people"),
+      numericInput("n", "Enter an integer between 1000 and 1000000 and wait a moment.", value = NA_integer_, step = 1),
+      actionButton("add_row", "Add row for additional gift-giver"),
       actionButton("reset", "Reset to default table"),
       helpText("Double-click a cell in the input table to edit it."),
       hr(),
@@ -74,7 +74,7 @@ server <- function(input, output, session) {
     as.integer(input$n)
   })
 
-  # Result of modifying the dataset with the integer
+  # Result of modifying the dataset with the random seed (integer)
   result <- reactive({
     df <- data_rv()
     n  <- n_int()
@@ -88,25 +88,25 @@ server <- function(input, output, session) {
 
     presents = df |>
       mutate(
-        Recipient1 = sample(df$`Gift Giver`),
-        Recipient2 = sample(df$`Gift Giver`),
+        `Recipient #1` = sample(df$`Gift Giver`),
+        `Recipient #2` = sample(df$`Gift Giver`),
       ) |>
       rowwise() |>
       mutate(
-        rec1_swap = `Gift Giver` == Recipient1 | Partner == Recipient1
+        rec1_swap = `Gift Giver` == `Recipient #1` | Partner == `Recipient #1`
       ) |>
       ungroup()
 
     i = 0
     while (any(presents$rec1_swap == TRUE)) {
       i = i + 1
-      if (i >= 100) presents$Recipient1 = sample(sample(df$`Gift Giver`))
+      if (i >= 100) presents$`Recipient #1` = sample(sample(df$`Gift Giver`))
       swap_rows = which(presents$rec1_swap == TRUE)
-      presents[swap_rows, "Recipient1"] = slice_sample(presents[swap_rows, "Recipient1"], n = length(swap_rows))
+      presents[swap_rows, "`Recipient #1`"] = slice_sample(presents[swap_rows, "`Recipient #1`"], n = length(swap_rows))
       presents = presents |>
         rowwise() |>
         mutate(
-          rec1_swap = `Gift Giver` == Recipient1 | Partner == Recipient1
+          rec1_swap = `Gift Giver` == `Recipient #1` | Partner == `Recipient #1`
         ) |>
         ungroup()
     }
@@ -118,13 +118,13 @@ server <- function(input, output, session) {
         y = presents |>
           select(`Gift Giver`, Partner) |>
           rename(rec2_partner = Partner),
-        by = join_by(Recipient1 == `Gift Giver`)
+        by = join_by(`Recipient #1` == `Gift Giver`)
       ) |>
       mutate(
-        rec2_swap = `Gift Giver` == Recipient2 |
-          Partner == Recipient2 |
-          Recipient1 == Recipient2 |
-          rec2_partner == Recipient2
+        rec2_swap = `Gift Giver` == `Recipient #2` |
+          Partner == `Recipient #2` |
+          `Recipient #1` == `Recipient #2` |
+          rec2_partner == `Recipient #2`
       ) |>
       ungroup() |>
       select(!rec2_partner)
@@ -132,22 +132,22 @@ server <- function(input, output, session) {
     i = 0
     while (any(presents$rec2_swap == TRUE)) {
       i = i + 1
-      if (i >= 100) presents$Recipient2 = sample(df$`Gift Giver`)
+      if (i >= 100) presents$`Recipient #2` = sample(df$`Gift Giver`)
       swap_rows = which(presents$rec2_swap == TRUE)
-      presents[swap_rows, "Recipient2"] = slice_sample(presents[swap_rows, "Recipient2"], n = length(swap_rows))
+      presents[swap_rows, "`Recipient #2`"] = slice_sample(presents[swap_rows, "`Recipient #2`"], n = length(swap_rows))
       presents = presents |>
         rowwise() |>
         left_join(
           y = presents |>
             select(`Gift Giver`, Partner) |>
             rename(rec2_partner = Partner),
-          by = join_by(Recipient1 == `Gift Giver`)
+          by = join_by(`Recipient #1` == `Gift Giver`)
         ) |>
         mutate(
-          rec2_swap = `Gift Giver` == Recipient2 |
-            Partner == Recipient2 |
-            Recipient1 == Recipient2 |
-            rec2_partner == Recipient2
+          rec2_swap = `Gift Giver` == `Recipient #2` |
+            Partner == `Recipient #2` |
+            `Recipient #1` == `Recipient #2` |
+            rec2_partner == `Recipient #2`
         ) |>
         ungroup() |>
         select(!rec2_partner)

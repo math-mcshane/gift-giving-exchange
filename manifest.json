@@ -3977,7 +3977,10 @@
   },
   "files": {
     "app.R": {
-      "checksum": "0e2a826a7ba34ff1de9b367c8a7b8bd0"
+      "checksum": "a769195fd3ef9be6fb77362c4f12db3d"
+    },
+    "style.css": {
+      "checksum": "e2db5fa73853bfa3fa4f30565ad14d31"
     }
   },
   "users": null

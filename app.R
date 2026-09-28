@@ -88,7 +88,7 @@ server <- function(input, output, session) {
     #
     set.seed(n)
 
-    presents = presents |>
+    presents = df |>
       rowwise() |>
       mutate(
         rec1_swap = Person == Recipient1 | Partner == Recipient1

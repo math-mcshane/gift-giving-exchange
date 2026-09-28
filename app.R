@@ -3,24 +3,22 @@ library(DT)
 library(tidyverse)
 
 # ---- Default dataset --------------------------------------------------------
+participants = c("Amy", "Jess", "Carly", "Joe", "Christian", "Ryan", "Ted", "James", "Bree", "Hannah")
 presents = tibble(
   Person = c("Amy", "Jess", "Carly", "Joe", "Christian", "Ryan", "Ted", "James", "Bree", "Hannah"),
-  Partner = c("Ryan", "Ted", "James", "Bree", "Hannah", "Amy", "Jess", "Carly", "Joe", "Christian"),
-  Recipient1 = sample(c("Amy", "Jess", "Carly", "Joe", "Christian", "Ryan", "Ted", "James", "Bree", "Hannah")),
-  Recipient2 = sample(c("Amy", "Jess", "Carly", "Joe", "Christian", "Ryan", "Ted", "James", "Bree", "Hannah"))
+  Partner = c("Ryan", "Ted", "James", "Bree", "Hannah", "Amy", "Jess", "Carly", "Joe", "Christian")
 )
-
 
 # ---- UI ---------------------------------------------------------------------
 ui <- fluidPage(
-  titlePanel("Editable dataset"),
+  titlePanel("Christmas gift-giving. Everyone gets two recipients -- neither their partner nor themselves."),
 
   sidebarLayout(
     sidebarPanel(
       width = 5,
-      numericInput("n", "Enter an integer between 1000 and 1000000", value = 1, step = 1),
-      actionButton("add_row", "Add row"),
-      actionButton("reset", "Reset to default"),
+      numericInput("n", "Enter an integer between 1000 and 1000000 and press \"enter.\"", value = 1, step = 1),
+      actionButton("add_row", "Add row for additional people"),
+      actionButton("reset", "Reset to default table"),
       helpText("Double-click a cell in the input table to edit it."),
       hr(),
       h4("Input data (editable)"),
@@ -56,13 +54,13 @@ server <- function(input, output, session) {
     data_rv(editData(data_rv(), input$input_table_cell_edit, rownames = FALSE))
   })
 
-  # # Append a blank row
-  # observeEvent(input$add_row, {
-  #   df <- data_rv()
-  #   new_row <- df[NA_integer_, , drop = FALSE][1, , drop = FALSE]
-  #   rownames(new_row) <- NULL
-  #   data_rv(rbind(df, new_row))
-  # })
+  # Append a blank row
+  observeEvent(input$add_row, {
+    df <- data_rv()
+    new_row <- df[NA_integer_, , drop = FALSE][1, , drop = FALSE]
+    rownames(new_row) <- NULL
+    data_rv(rbind(df, new_row))
+  })
 
   # Restore the default dataset
   observeEvent(input$reset, {
@@ -91,6 +89,8 @@ server <- function(input, output, session) {
     presents = df |>
       rowwise() |>
       mutate(
+        Recipient1 = sample(participants),
+        Recipient2 = sample(participants),
         rec1_swap = Person == Recipient1 | Partner == Recipient1
       ) |>
       ungroup()

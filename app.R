@@ -7,7 +7,7 @@ library(bslib)
 participants = c("Amy", "Jess", "Carly", "Joe", "Christian", "Ryan", "Ted", "James", "Bree", "Hannah")
 presents = tibble(
   `Gift Giver` = c("Amy", "Jess", "Carly", "Joe", "Christian", "Ryan", "Ted", "James", "Bree", "Hannah"),
-  Partner = c("Ryan", "Ted", "James", "Bree", "Hannah", "Amy", "Jess", "Carly", "Joe", "Christian")
+  `Significant Other` = c("Ryan", "Ted", "James", "Bree", "Hannah", "Amy", "Jess", "Carly", "Joe", "Christian")
 )
 
 # ---- UI ---------------------------------------------------------------------
@@ -21,7 +21,7 @@ ui <- fluidPage(
     base_font = font_google("Jost"), font_scale = NULL
   ),
 
-  titlePanel("Christmas gift-giving. Everyone gets two distinct recipients -- neither their partner nor themselves."),
+  titlePanel("Christmas gift-giving. Everyone gets two distinct recipients -- neither their S/O nor themselves."),
 
   sidebarLayout(
     sidebarPanel(
@@ -94,7 +94,7 @@ server <- function(input, output, session) {
       ) |>
       rowwise() |>
       mutate(
-        rec1_swap = `Gift Giver` == Recipient1 | Partner == Recipient1
+        rec1_swap = `Gift Giver` == Recipient1 | `Significant Other` == Recipient1
       ) |>
       ungroup()
 
@@ -107,7 +107,7 @@ server <- function(input, output, session) {
       presents = presents |>
         rowwise() |>
         mutate(
-          rec1_swap = `Gift Giver` == Recipient1 | Partner == Recipient1
+          rec1_swap = `Gift Giver` == Recipient1 | `Significant Other` == Recipient1
         ) |>
         ungroup()
     }
@@ -117,13 +117,13 @@ server <- function(input, output, session) {
       rowwise() |>
       left_join(
         y = presents |>
-          select(`Gift Giver`, Partner) |>
-          rename(rec2_partner = Partner),
+          select(`Gift Giver`, `Significant Other`) |>
+          rename(rec2_partner = `Significant Other`),
         by = join_by(Recipient1 == `Gift Giver`)
       ) |>
       mutate(
         rec2_swap = `Gift Giver` == Recipient2 |
-          Partner == Recipient2 |
+          `Significant Other` == Recipient2 |
           Recipient1 == Recipient2 |
           rec2_partner == Recipient2
       ) |>
@@ -140,13 +140,13 @@ server <- function(input, output, session) {
         rowwise() |>
         left_join(
           y = presents |>
-            select(`Gift Giver`, Partner) |>
-            rename(rec2_partner = Partner),
+            select(`Gift Giver`, `Significant Other`) |>
+            rename(rec2_partner = `Significant Other`),
           by = join_by(Recipient1 == `Gift Giver`)
         ) |>
         mutate(
           rec2_swap = `Gift Giver` == Recipient2 |
-            Partner == Recipient2 |
+            `Significant Other` == Recipient2 |
             Recipient1 == Recipient2 |
             rec2_partner == Recipient2
         ) |>
@@ -155,7 +155,7 @@ server <- function(input, output, session) {
     }
 
     df = presents |>
-      select(!c(rec2_swap, Partner))
+      select(!c(rec2_swap, `Significant Other`))
     # ------------------------------------------------------------------------
 
     df

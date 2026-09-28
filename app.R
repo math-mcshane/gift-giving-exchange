@@ -88,25 +88,25 @@ server <- function(input, output, session) {
 
     presents = df |>
       mutate(
-        `Recipient #1` = sample(df$`Gift Giver`),
-        `Recipient #2` = sample(df$`Gift Giver`),
+        `Recipient 1` = sample(df$`Gift Giver`),
+        `Recipient 2` = sample(df$`Gift Giver`),
       ) |>
       rowwise() |>
       mutate(
-        rec1_swap = `Gift Giver` == `Recipient #1` | Partner == `Recipient #1`
+        rec1_swap = `Gift Giver` == `Recipient 1` | Partner == `Recipient 1`
       ) |>
       ungroup()
 
     i = 0
     while (any(presents$rec1_swap == TRUE)) {
       i = i + 1
-      if (i >= 100) presents$`Recipient #1` = sample(sample(df$`Gift Giver`))
+      if (i >= 100) presents$`Recipient 1` = sample(sample(df$`Gift Giver`))
       swap_rows = which(presents$rec1_swap == TRUE)
-      presents[swap_rows, "`Recipient #1`"] = slice_sample(presents[swap_rows, "`Recipient #1`"], n = length(swap_rows))
+      presents[swap_rows, "`Recipient 1`"] = slice_sample(presents[swap_rows, "`Recipient 1`"], n = length(swap_rows))
       presents = presents |>
         rowwise() |>
         mutate(
-          rec1_swap = `Gift Giver` == `Recipient #1` | Partner == `Recipient #1`
+          rec1_swap = `Gift Giver` == `Recipient 1` | Partner == `Recipient 1`
         ) |>
         ungroup()
     }
@@ -118,13 +118,13 @@ server <- function(input, output, session) {
         y = presents |>
           select(`Gift Giver`, Partner) |>
           rename(rec2_partner = Partner),
-        by = join_by(`Recipient #1` == `Gift Giver`)
+        by = join_by(`Recipient 1` == `Gift Giver`)
       ) |>
       mutate(
-        rec2_swap = `Gift Giver` == `Recipient #2` |
-          Partner == `Recipient #2` |
-          `Recipient #1` == `Recipient #2` |
-          rec2_partner == `Recipient #2`
+        rec2_swap = `Gift Giver` == `Recipient 2` |
+          Partner == `Recipient 2` |
+          `Recipient 1` == `Recipient 2` |
+          rec2_partner == `Recipient 2`
       ) |>
       ungroup() |>
       select(!rec2_partner)
@@ -132,22 +132,22 @@ server <- function(input, output, session) {
     i = 0
     while (any(presents$rec2_swap == TRUE)) {
       i = i + 1
-      if (i >= 100) presents$`Recipient #2` = sample(df$`Gift Giver`)
+      if (i >= 100) presents$`Recipient 2` = sample(df$`Gift Giver`)
       swap_rows = which(presents$rec2_swap == TRUE)
-      presents[swap_rows, "`Recipient #2`"] = slice_sample(presents[swap_rows, "`Recipient #2`"], n = length(swap_rows))
+      presents[swap_rows, "`Recipient 2`"] = slice_sample(presents[swap_rows, "`Recipient 2`"], n = length(swap_rows))
       presents = presents |>
         rowwise() |>
         left_join(
           y = presents |>
             select(`Gift Giver`, Partner) |>
             rename(rec2_partner = Partner),
-          by = join_by(`Recipient #1` == `Gift Giver`)
+          by = join_by(`Recipient 1` == `Gift Giver`)
         ) |>
         mutate(
-          rec2_swap = `Gift Giver` == `Recipient #2` |
-            Partner == `Recipient #2` |
-            `Recipient #1` == `Recipient #2` |
-            rec2_partner == `Recipient #2`
+          rec2_swap = `Gift Giver` == `Recipient 2` |
+            Partner == `Recipient 2` |
+            `Recipient 1` == `Recipient 2` |
+            rec2_partner == `Recipient 2`
         ) |>
         ungroup() |>
         select(!rec2_partner)

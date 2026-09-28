@@ -45,7 +45,7 @@ server <- function(input, output, session) {
       data_rv(),
       editable = TRUE,
       rownames = FALSE,
-      options  = list(pageLength = 10, dom = "tip")
+      options  = list(pageLength = 12, dom = "tip")
     )
   })
 
@@ -87,10 +87,12 @@ server <- function(input, output, session) {
     set.seed(n)
 
     presents = df |>
-      rowwise() |>
       mutate(
         Recipient1 = sample(participants),
         Recipient2 = sample(participants),
+      ) |>
+      rowwise() |>
+      mutate(
         rec1_swap = Person == Recipient1 | Partner == Recipient1
       ) |>
       ungroup()
@@ -163,7 +165,7 @@ server <- function(input, output, session) {
     datatable(
       result(),
       rownames = FALSE,
-      options  = list(pageLength = 10, dom = "tip")
+      options  = list(pageLength = 15, dom = "tip")
     )
   })
 }

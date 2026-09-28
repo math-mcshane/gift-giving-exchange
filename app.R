@@ -11,6 +11,10 @@ presents = tibble(
 
 # ---- UI ---------------------------------------------------------------------
 ui <- fluidPage(
+  tags$head(
+    tags$link(rel = "stylesheet", type = "text/css", href = "styles.css")
+  ),
+
   titlePanel("Christmas gift-giving. Everyone gets two distinct recipients -- neither their partner nor themselves."),
 
   sidebarLayout(

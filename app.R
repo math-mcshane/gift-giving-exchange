@@ -12,9 +12,9 @@ presents = tibble(
 
 # ---- UI ---------------------------------------------------------------------
 ui <- fluidPage(
-  # tags$head(
-  #   tags$link(rel = "stylesheet", type = "text/css", href = "styles.css")
-  # ),
+  tags$head(
+    tags$link(rel = "stylesheet", type = "text/css", href = "styles.css")
+  ),
   theme = bs_theme(preset = "minty", primary = "#2F5323", secondary = "#7A1008",
                   success = "#3A8232", base_font = font_google("Jost"), font_scale = NULL),
 

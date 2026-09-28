@@ -13,7 +13,7 @@ presents = tibble(
 # ---- UI ---------------------------------------------------------------------
 ui <- fluidPage(
   tags$head(
-    tags$link(rel = "stylesheet", type = "text/css", href = "styles.css")
+    tags$link(rel = "stylesheet", type = "text/css", href = "style.css")
   ),
   theme = bs_theme(
     # preset = "minty",

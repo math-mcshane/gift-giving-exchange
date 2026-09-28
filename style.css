@@ -9,3 +9,16 @@
 .dataTables_wrapper {
   font-family: "Jost", sans-serif;
 }
+
+/* Accent images above and below the output table */
+.accent-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 10px 0;
+}
+
+.accent-row .accent {
+  width: 80px;
+  height: 80px;
+}

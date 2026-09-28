@@ -22,7 +22,6 @@ ui <- fluidPage(
       width = 5,
       numericInput("n", "Enter an integer between 1000 and 1000000 and wait a moment.", value = NA_integer_, step = 1),
       actionButton("add_row", "Add row for additional gift-giver"),
-      actionButton("reset", "Reset to default table"),
       helpText("Double-click a cell in the input table to edit it."),
       hr(),
       h4("Input data (editable)"),
@@ -66,11 +65,6 @@ server <- function(input, output, session) {
     data_rv(rbind(df, new_row))
   })
 
-  # Restore the default dataset
-  observeEvent(input$reset, {
-    data_rv(presents)
-  })
-
   # Validated integer input
   n_int <- reactive({
     req(input$n)
@@ -83,11 +77,8 @@ server <- function(input, output, session) {
     df <- data_rv()
     n  <- n_int()
 
+    # My original R code for this app
     # ------------------------------------------------------------------------
-    # TODO: Insert your code here to modify `df` using the integer `n`.
-    # `df` is the current edited dataset (a data.frame).
-    # Assign the final result back to `df`.
-    #
     set.seed(n)
 
     presents = df |>
